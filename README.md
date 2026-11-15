@@ -8,7 +8,7 @@
 ## 📌 Phase I Submission Quick Links
 
 - 📄 **IEEE Technical Report (PDF):** [`docs/IEEE_REPORT.pdf`](docs/IEEE_REPORT.pdf)
-- 🎥 **Prototype Demo Video Link:** *`[Insert Your 5-Minute YouTube / Google Drive Video Link Here]`*
+- 🎥 **Prototype Demo Video Link:** [Google Drive Demo Video (5-Minute Walkthrough)](https://drive.google.com/file/d/1s9-p3VAnroPm70vCqMKWxDDHWJo9CIOd/view?usp=sharing)
 - 📊 **Verification & Benchmark Report:** [`docs/VERIFICATION_REPORT.md`](docs/VERIFICATION_REPORT.md)
 - 💻 **To Run Full Simulation on Terminal:**
   ```bash
