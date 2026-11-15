@@ -1,7 +1,20 @@
 # Design and Performance Analysis of a 2-Way Set-Associative Cache with LRU Replacement Compared with a Direct-Mapped Cache
 
-> **Current Project Status: Initial Setup & Architectural Definition**  
-> *RTL design, replacement logic, and simulation testbenches are scheduled for subsequent phases. No simulation or synthesis has been executed yet.*
+> **Current Project Status: Phase I Complete — Synthesizable Verilog Verified & IEEE Report Ready**  
+> *Both Direct-Mapped and 2-Way Set-Associative Caches fully implemented, simulated in Icarus Verilog, and documented in IEEE format.*
+
+---
+
+## 📌 Phase I Submission Quick Links
+
+- 📄 **IEEE Technical Report (PDF):** [`docs/IEEE_Project_Report.pdf`](docs/IEEE_Project_Report.pdf)
+- 📝 **IEEE Technical Report (Word .docx):** [`docs/IEEE_Project_Report_2Way_vs_Direct_Cache.docx`](docs/IEEE_Project_Report_2Way_vs_Direct_Cache.docx)
+- 🎥 **Prototype Demo Video Link:** *`[Insert Your 5-Minute YouTube / Google Drive Video Link Here]`*
+- 📊 **Verification & Benchmark Report:** [`docs/VERIFICATION_REPORT.md`](docs/VERIFICATION_REPORT.md)
+- 💻 **To Run Full Simulation on Terminal:**
+  ```bash
+  make sim    # Compiles and runs both caches across all benchmark traces
+  ```
 
 ---
 
