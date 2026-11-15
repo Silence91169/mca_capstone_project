@@ -7,9 +7,14 @@
 IVERILOG ?= iverilog
 VVP      ?= vvp
 
-.PHONY: all direct sim_direct sim_2way sim_lru_fsm clean help
+.PHONY: all direct sim_direct sim_2way sim_lru_fsm test sim clean help
 
-all: direct
+all: test
+
+test: sim
+sim:
+	@mkdir -p build results waveforms
+	@bash sim/run_sim.sh
 
 direct:
 	@mkdir -p build results waveforms
