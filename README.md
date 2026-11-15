@@ -8,7 +8,6 @@
 ## 📌 Phase I Submission Quick Links
 
 - 📄 **IEEE Technical Report (PDF):** [`docs/IEEE_REPORT.pdf`](docs/IEEE_REPORT.pdf)
-- 📝 **IEEE Technical Report (Word .docx):** [`docs/IEEE_REPORT.docx`](docs/IEEE_REPORT.docx)
 - 🎥 **Prototype Demo Video Link:** *`[Insert Your 5-Minute YouTube / Google Drive Video Link Here]`*
 - 📊 **Verification & Benchmark Report:** [`docs/VERIFICATION_REPORT.md`](docs/VERIFICATION_REPORT.md)
 - 💻 **To Run Full Simulation on Terminal:**
