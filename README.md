@@ -1,12 +1,14 @@
 # Design and Performance Analysis of a 2-Way Set-Associative Cache with LRU Replacement Compared with a Direct-Mapped Cache
 
-> **Project Status: RTL implemented and regression verified; report reconciliation remains pending.**
+> **Project Status: RTL implemented, regression verified, and final IEEE report generated from reviewed editable sources.**
 > *Both caches and the LRU controller are integrated with a shared behavioral memory. The submitted caches use internal three-state controllers; `cache_fsm.v` is a separately verified six-state reference controller. Results below come from executable simulations and separately identified workloads.*
 
 ---
 
 ## 📌 Project Reports & Deliverables (PDF Format)
 
+- 📑 **Final Verified IEEE Report (PDF):** [`output/pdf/IEEE_REPORT_FINAL_VERIFIED.pdf`](output/pdf/IEEE_REPORT_FINAL_VERIFIED.pdf)
+- 📝 **Editable Final Report Source (LaTeX):** [`docs/ieee_report_phase2.tex`](docs/ieee_report_phase2.tex)
 - 📑 **Final Complete Project Report (PDF):** [`docs/IEEE_REPORT.pdf`](docs/IEEE_REPORT.pdf) *(Official Final Comprehensive Report)*
 - 📄 **Phase I Technical Report (PDF):** [`docs/IEEE_REPORT_PHASE1.pdf`](docs/IEEE_REPORT_PHASE1.pdf) *(Phase I Submission)*
 - 📄 **Phase II Technical Report (PDF):** [`docs/IEEE_REPORT_PHASE2.pdf`](docs/IEEE_REPORT_PHASE2.pdf) *(Phase II Submission)*
@@ -16,8 +18,8 @@
 - 🧪 **Comparative Benchmark Testbench:** [`tb/tb_top.v`](tb/tb_top.v)
 - 💻 **Commands to Run on Terminal:**
   ```bash
-  make sim_top   # Runs Phase II integration benchmark comparing both caches side-by-side
-  make sim       # Runs automated regression suite across all modular unit testbenches
+  make sim_top   # Runs the integration benchmark comparing both caches side-by-side
+  make test      # Runs the complete 347-check regression and regenerates result summaries
   ```
 
 ---
@@ -49,7 +51,7 @@ This college project explores the architectural design, Verilog HDL modeling, an
 1. **A 2-Way Set-Associative Cache** featuring a **Least Recently Used (LRU)** line replacement policy.
 2. **A Direct-Mapped Cache** of equivalent storage capacity.
 
-Cache memory sits between the high-speed processor core and relatively slow main memory to bridge the Von Neumann memory latency bottleneck. By implementing both cache architectures under identical capacity and memory configurations, this project aims to evaluate how set-associativity and replacement logic influence cache hit rates, conflict misses, latency, and hardware resource utilization.
+Cache memory sits between the high-speed processor core and relatively slow main memory to bridge the Von Neumann memory latency bottleneck. By implementing both cache architectures under identical capacity and memory configurations, this project evaluates how set-associativity and replacement logic influence cache hit rates, conflict misses, and simulated access behavior. No synthesis area, timing, or power measurements are claimed.
 
 ---
 
@@ -146,19 +148,19 @@ Field:                  TAG (5 bits)                    |  LINE INDEX (3 bits)
 
 - **Direct-Mapped Cache:** Uses a single memory array for data and tags. When an address is requested, the 3-bit line index selects the line, and if valid bit = 1 and tag matches, a **Hit** is flagged. On a **Miss**, the existing line is replaced immediately by data fetched from main memory.
 - **2-Way Set-Associative Cache:** Divides the 8 lines into 4 sets with 2 ways (`Way 0` and `Way 1`). When an address is presented, the 2-bit set index accesses both ways concurrently. Dual comparators verify tags in parallel. On a **Miss**, a dedicated 1-bit LRU register for that set identifies which way was least recently accessed to select the replacement victim.
-- **Memory Interface & Controller FSM:** Coordinates states (`IDLE`, `COMPARE_TAG`, `ALLOCATE` / `WRITE_BACK`) to handle hit service, miss latency, and synchronization with main memory.
+- **Memory Interface & Controller FSM:** Each integrated cache uses `IDLE`, `READ_WAIT`, and `WRITE_WAIT` states to handle hits, refills, write-through acknowledgements, and synchronization with main memory. The separate six-state `cache_fsm.v` is independently verified but is not instantiated in the integrated cache datapath.
 
 *(For detailed architectural specifications, see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).)*
 
 ---
 
-## 7. Technology Stack & Planned Tooling
+## 7. Technology Stack & Tooling
 
 - **Hardware Description Language:** Verilog HDL (IEEE 1364-2001 / IEEE 1364-2005)
-- **Simulation Engine:** Icarus Verilog (`iverilog`) / ModelSim / QuestaSim
-- **Waveform Viewer:** GTKWave (`.vcd` dump analysis)
-- **Build & Automation:** Shell scripts / Makefiles (planned in `sim/`)
-- **Documentation:** Markdown & block diagrams
+- **Simulation Engine:** Icarus Verilog (`iverilog`)
+- **Waveform Output:** Testbenches generate `.vcd` files; GTKWave inspection is available but is not claimed as part of the verified regression
+- **Build & Automation:** Shell scripts, Python result parsing, and Makefile targets
+- **Documentation:** Markdown, architecture diagrams, and an editable LaTeX IEEE report
 
 ---
 
@@ -172,18 +174,20 @@ Field:                  TAG (5 bits)                    |  LINE INDEX (3 bits)
 - [x] **Phase 2: Core RTL Development**
   - [x] Direct-mapped cache datapath and control unit ([`docs/DIRECT_MAPPED_CACHE.md`](docs/DIRECT_MAPPED_CACHE.md))
   - [x] 2-way set-associative cache datapath and dual tag comparators
-  - [x] LRU replacement tracking logic
-  - [x] Internal three-state cache controllers and separate six-state reference FSM
-  - [x] 256 × 8-bit behavioral main memory model
+  - [x] Integrated 1-bit-per-set LRU replacement controller
+  - [x] Internal three-state cache controllers
+  - [x] Six-state reference FSM independently verified (not integrated into the cache datapath)
+  - [x] Shared 256 × 8-bit behavioral main memory and transaction-owner routing
 - [x] **Phase 3: Verification & Testbench Implementation**
   - [x] Direct-mapped unit testbench (17 checks)
   - [x] Two-way unit and extended testbenches (26 + 18 checks)
   - [x] LRU/reference-FSM testbench (24 checks)
   - [x] Self-checking integration benchmark (262 checks)
+  - [x] Complete clean regression (347 meaningful checks, 347/347 PASS)
 - [x] **Phase 4: Comparative Simulation & Performance Analysis**
   - [x] Separate two-address and three-address conflict datasets
   - [x] Reproducible CSV generation from simulation logs
-  - [ ] Reconcile and regenerate the final IEEE PDF from reviewed editable sources
+  - [x] Reconciled final IEEE PDF generated from reviewed editable LaTeX source
 
 ---
 
@@ -195,14 +199,16 @@ Field:                  TAG (5 bits)                    |  LINE INDEX (3 bits)
 ├── README.md               # Project overview, specifications, and roadmap
 ├── .gitignore              # Ignores EDA artifacts, waveforms, and temporary outputs
 │
-├── rtl/                    # Synthesizable Verilog modules (Planned)
-│   └── .gitkeep
+├── rtl/                    # Implemented cache, LRU, FSM, and integration RTL
+│   ├── cache_direct.v
+│   ├── cache_2way.v
+│   ├── lru_controller.v
+│   ├── cache_fsm.v         # Independently verified six-state reference FSM
+│   └── top_module.v
 │
-├── tb/                     # Testbenches and verification environments (Planned)
-│   └── .gitkeep
+├── tb/                     # Modular and integration testbenches
 │
-├── sim/                    # Simulation scripts, Makefiles, and runner tools (Planned)
-│   └── .gitkeep
+├── sim/                    # Simulation scripts and result parser
 │
 ├── build/                  # Compiled binaries and simulator executables (Ignored)
 │   └── .gitkeep
@@ -210,8 +216,9 @@ Field:                  TAG (5 bits)                    |  LINE INDEX (3 bits)
 ├── waveforms/              # Value Change Dump (.vcd) waveform files (Ignored)
 │   └── .gitkeep
 │
-├── results/                # Simulation logs, hit/miss statistics, reports (Ignored)
-│   └── .gitkeep
+├── results/                # Verified simulation logs and benchmark CSV files
+│
+├── output/pdf/             # Final verified IEEE PDF
 │
 └── docs/                   # Architectural notes, team logs, and schematics
     ├── ARCHITECTURE.md     # Detailed microarchitectural specifications
@@ -230,7 +237,7 @@ Field:                  TAG (5 bits)                    |  LINE INDEX (3 bits)
 | **Keshav** | Two-Way Cache RTL | 2-way set-associative datapath, storage arrays, parallel tag comparators |
 | **Shitanshu** | LRU Replacement & Cache FSM | 1-bit LRU update unit, cache controller FSM (Hit/Miss/Fetch states) |
 | **Shivam** | Direct-Mapped Cache RTL | Direct-mapped cache datapath, tag/valid arrays, hit/miss detection |
-| **Kaavya** | Testbenches & Simulation | Test vector generation, memory modeling, simulation scripts, GTKWave analysis |
+| **Kaavya** | Testbenches & Simulation | Test vector generation, memory modeling, simulation scripts, VCD generation, and benchmark analysis |
 
 *(For full deliverable breakdowns, see [`docs/TEAM_RESPONSIBILITIES.md`](docs/TEAM_RESPONSIBILITIES.md).)*
 
