@@ -7,8 +7,9 @@
 
 ## 📌 Project Reports & Deliverables (PDF Format)
 
+- 📑 **Final Complete Project Report (PDF):** [`docs/IEEE_REPORT.pdf`](docs/IEEE_REPORT.pdf) *(Official Final Comprehensive Report)*
 - 📄 **Phase I Technical Report (PDF):** [`docs/IEEE_REPORT_PHASE1.pdf`](docs/IEEE_REPORT_PHASE1.pdf) *(Phase I Submission)*
-- 📄 **Phase II Technical Report (PDF):** [`docs/IEEE_REPORT_PHASE2.pdf`](docs/IEEE_REPORT_PHASE2.pdf) *(Phase II Final Submission)*
+- 📄 **Phase II Technical Report (PDF):** [`docs/IEEE_REPORT_PHASE2.pdf`](docs/IEEE_REPORT_PHASE2.pdf) *(Phase II Submission)*
 - 🎥 **Prototype Demo Video Link:** [Google Drive Demo Video (5-Minute Walkthrough)](https://drive.google.com/file/d/1s9-p3VAnroPm70vCqMKWxDDHWJo9CIOd/view?usp=sharing)
 - 📊 **Integration Benchmark Results:** [`results/sim_top.log`](results/sim_top.log) & [`results/performance_comparison.csv`](results/performance_comparison.csv)
 - 📁 **Top-Level Integration Wrapper:** [`rtl/top_module.v`](rtl/top_module.v)
