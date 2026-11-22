@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 // =============================================================================
 // Module: cache_2way
 // 4-set, 2-way set-associative byte cache with write-through/no-write-allocate.
@@ -100,8 +102,7 @@ module cache_2way (
     assign cache_hit = (state == STATE_IDLE && req_valid) ? hit_comb :
                        (state == STATE_WRITE_WAIT) ? latched_hit : 1'b0;
 
-    assign busy = (state == STATE_READ_WAIT && !mem_ready) ||
-                  (state == STATE_WRITE_WAIT && !mem_ready) ||
+    assign busy = (state != STATE_IDLE) ||
                   (state == STATE_IDLE && req_valid && (req_wr_en || !hit_comb));
 
     assign mem_req = (state == STATE_READ_WAIT) ||

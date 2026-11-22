@@ -25,8 +25,8 @@ is written to `results/sim_2way_keshav.log`.
 
 ## Integration note
 
-At this commit, `rtl/lru_controller.v` is still the repository's placeholder
-skeleton. The cache wiring uses its documented ports, but full-set replacement
-cannot be verified until Shitanshu supplies the implementation. The test covers
-cold fills into both ways, both way hits, data selection, write hit, and reset
-invalidation; it does not claim to verify a full-set LRU eviction.
+`rtl/lru_controller.v` is implemented and instantiated by `cache_2way`. Full-set
+replacement is verified by `tb/tb_2way.v` and the mandatory
+`0x00 -> 0x10 -> 0x00 -> 0x20` trace in `tb/tb_lru_fsm.v`. The separate
+six-state `rtl/cache_fsm.v` remains a reference controller and is not instantiated
+by this cache; the submitted cache uses its internal three-state controller.

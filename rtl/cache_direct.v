@@ -121,8 +121,7 @@ module cache_direct (
                        1'b0;
 
     // busy: Stalls CPU during misses or writes waiting for backing memory
-    assign busy = (state == STATE_READ_WAIT  && !mem_ready) ||
-                  (state == STATE_WRITE_WAIT && !mem_ready) ||
+    assign busy = (state != STATE_IDLE) ||
                   (state == STATE_IDLE && req_valid && (req_wr_en || !hit_comb));
 
     // =========================================================================

@@ -1,4 +1,10 @@
 // =============================================================================
+// INTEGRATION STATUS:
+//   This six-state Moore controller is a separately verified reference design.
+//   It is not instantiated by cache_2way.v, whose submitted implementation uses
+//   an internal three-state controller. Integrating this module would require a
+//   latched request context and additional datapath control signals.
+// =============================================================================
 // Module: cache_fsm
 // Project: Design and Performance Analysis of a 2-Way Set-Associative Cache
 //          with LRU Replacement Compared with a Direct-Mapped Cache

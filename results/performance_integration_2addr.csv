@@ -1,0 +1,9 @@
+Dataset,Trace,Cache Type,Total Requests,Hits,Misses,Hit Rate (%)
+Two-address integration,Sequential,Direct-Mapped,16,8,8,50
+Two-address integration,Temporal,Direct-Mapped,8,6,2,75
+Two-address integration,Conflict-Heavy,Direct-Mapped,12,0,12,0
+Two-address integration,Mixed,Direct-Mapped,10,5,5,50
+Two-address integration,Sequential,2-Way Set-Associative,16,8,8,50
+Two-address integration,Temporal,2-Way Set-Associative,8,6,2,75
+Two-address integration,Conflict-Heavy,2-Way Set-Associative,12,10,2,83
+Two-address integration,Mixed,2-Way Set-Associative,10,6,4,60

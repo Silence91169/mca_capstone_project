@@ -1,0 +1,41 @@
+VCD info: dumpfile waveforms/lru_fsm.vcd opened for output.
+===============================================================================
+VERIFICATION SUITE: LRU CONTROLLER & CACHE FSM
+===============================================================================
+[PASS] Reset initializes all 4 set LRU bits to 0
+[PASS] FSM resets to STATE_IDLE with busy=0
+[PASS] Empty set (0,0) prefers Way 0 first
+[PASS] Invalid-way preference picks Way 1 when Way 0 is valid
+[PASS] Invalid-way preference picks Way 0 when Way 1 is valid
+
+--- Running Mandatory Trace: 0x00 -> 0x10 -> 0x00 -> 0x20 (Set 0) ---
+[PASS] Trace Step 1 (0x00): Empty set selects Way 0
+[PASS] Trace Step 1 (0x00): Way 0 accessed -> LRU[0]=1 (Way 1 is LRU)
+[PASS] Trace Step 2 (0x10): Invalid Way 1 selected
+[PASS] Trace Step 2 (0x10): Way 1 accessed -> LRU[0]=0 (Way 0 is LRU)
+[PASS] Trace Step 3 (0x00 Hit): Way 0 accessed -> LRU[0]=1 (Way 1 is LRU)
+[PASS] Trace Step 4 (0x20 Miss): Victim is Way 1 (0x10 evicted, 0x00 kept)
+[PASS] Trace Step 4 (0x20 Refill): Way 1 refilled -> LRU[0]=0
+[PASS] Other sets (1, 2, 3) remained undisturbed
+
+--- Running Cache FSM State Transition Tests ---
+[PASS] FSM enters LOOKUP with busy=1
+[PASS] FSM enters HIT_RESPONSE with resp_valid=1
+[PASS] FSM returns to IDLE after HIT_RESPONSE
+[PASS] FSM enters MEMORY_WAIT for read miss
+[PASS] FSM stalls in MEMORY_WAIT while mem_ready=0
+[PASS] FSM enters REFILL with refill_en=1
+[PASS] FSM enters RESPONSE with resp_valid=1
+[PASS] FSM returns to IDLE after read miss
+[PASS] FSM enters MEMORY_WAIT with mem_wr_en=1
+[PASS] FSM skips REFILL on write and asserts resp_valid=1
+[PASS] FSM returns to IDLE after write-through
+
+===============================================================================
+VERIFICATION SUMMARY (LRU & FSM):
+Total Tests  : 24
+Tests Passed : 24
+Tests Failed : 0
+===============================================================================
+>>> ALL LRU & FSM TESTS PASSED SUCCESSFULLY! <<<
+tb/tb_lru_fsm.v:265: $finish called at 206000 (1ps)

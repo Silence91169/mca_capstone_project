@@ -146,22 +146,22 @@ When a cache miss occurs in the 2-way set-associative cache and both ways are cu
 
 ### 5.1 Bit Definition Convention
 For each set $i \in \{0, 1, 2, 3\}$, let $\text{LRU}[i]$ represent recency:
-- $\text{LRU}[i] = 0$: Way 0 was accessed more recently; **Way 1 is the LRU victim**.
-- $\text{LRU}[i] = 1$: Way 1 was accessed more recently; **Way 0 is the LRU victim**.
+- $\text{LRU}[i] = 0$: **Way 0 is the next LRU victim**.
+- $\text{LRU}[i] = 1$: **Way 1 is the next LRU victim**.
 
 ### 5.2 LRU Update Rules
 - **Access to Way 0 (Read/Write Hit or Allocation to Way 0):**  
-  $\text{LRU}[i] \leftarrow 0$ (marks Way 0 as most recently used; Way 1 becomes the next eviction candidate).
+  $\text{LRU}[i] \leftarrow 1$ (Way 1 becomes the next eviction candidate).
 - **Access to Way 1 (Read/Write Hit or Allocation to Way 1):**  
-  $\text{LRU}[i] \leftarrow 1$ (marks Way 1 as most recently used; Way 0 becomes the next eviction candidate).
+  $\text{LRU}[i] \leftarrow 0$ (Way 0 becomes the next eviction candidate).
 
 ### 5.3 Eviction & Replacement Selection
 On a cache miss at set $i$:
 1. If $\text{Valid0}[i] == 0$, allocate into **Way 0** (no eviction required).
 2. Else if $\text{Valid1}[i] == 0$, allocate into **Way 1** (no eviction required).
 3. If both ways are valid ($\text{Valid0} == 1 \land \text{Valid1} == 1$):
-   - If $\text{LRU}[i] == 0$, replace **Way 1**.
-   - If $\text{LRU}[i] == 1$, replace **Way 0**.
+   - If $\text{LRU}[i] == 0$, replace **Way 0**.
+   - If $\text{LRU}[i] == 1$, replace **Way 1**.
 4. Update the tag and data of the chosen victim line, set its valid bit to 1, and update $\text{LRU}[i]$ accordingly.
 
 ---

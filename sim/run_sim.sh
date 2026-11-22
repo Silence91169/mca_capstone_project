@@ -6,7 +6,7 @@
 #          Run from the project root directory.
 # =============================================================================
 
-set -e   # exit on any error
+set -eo pipefail   # propagate compiler, simulator, and pipeline failures
 PROJ_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$PROJ_ROOT"
 
@@ -49,6 +49,7 @@ vvp build/sim_2way 2>&1 | tee results/sim_2way.log
 
 if grep -q "\[FAIL\]" results/sim_2way.log; then
     fail "tb_2way: Some tests FAILED — review results/sim_2way.log"
+    exit 1
 else
     pass "tb_2way: All tests PASSED"
 fi
@@ -73,6 +74,7 @@ vvp build/sim_direct 2>&1 | tee results/sim_direct.log
 
 if grep -q "\[FAIL\]" results/sim_direct.log; then
     fail "tb_direct: Some tests FAILED — review results/sim_direct.log"
+    exit 1
 else
     pass "tb_direct: All tests PASSED"
 fi

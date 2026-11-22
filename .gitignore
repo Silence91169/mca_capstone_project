@@ -53,12 +53,19 @@ sim/*
 !sim/.gitkeep
 !sim/README.md
 !sim/*.sh
+!sim/*.py
 !sim/Makefile
 
 # Results and logs generated during test runs (preserve directory via .gitkeep)
 results/*
 !results/.gitkeep
 !results/sim_2way_keshav.log
+!results/sim_direct.log
+!results/sim_2way.log
+!results/sim_lru_fsm.log
+!results/sim_top.log
+!results/*.csv
+!results/performance_summary.md
 
 # ==============================================================================
 # Operating System & Editor Artifacts

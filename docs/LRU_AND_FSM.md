@@ -1,7 +1,7 @@
 # LRU Replacement & Cache Controller FSM Documentation
 
 > **Modules Covered:** `rtl/lru_controller.v` & `rtl/cache_fsm.v`  
-> **Integration:** Integrated with Keshav's `rtl/cache_2way.v`  
+> **Integration:** `lru_controller.v` is integrated with `cache_2way.v`; the separate six-state `cache_fsm.v` is a verified reference controller and is not instantiated by the submitted cache.
 > **Verification:** `tb/tb_lru_fsm.v` (24/24 tests passing) & `tb/tb_cache_2way_keshav.v` (26/26 checks passing)
 
 ---

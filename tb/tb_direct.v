@@ -185,7 +185,7 @@ module tb_direct;
     // =========================================================================
     task check;
         input condition;
-        input [479:0] test_name;
+        input [8*120-1:0] test_name;
         begin
             if (condition) begin
                 $display("  [PASS] %0s", test_name);
@@ -277,7 +277,7 @@ module tb_direct;
         // 0x00 was evicted — accessing it again must MISS (conflict eviction)
         last_hit = hit_count;
         drive_read(8'h00);    // MISS again (direct-mapped can't hold both!)
-        check((hit_count == last_hit), "T4b: addr=0x00 MISSes again (evicted by conflict — direct-mapped limitation)");
+        check((hit_count == last_hit), "T4b: addr=0x00 MISSes again after direct-mapped conflict eviction");
 
         // =====================================================================
         // TEST 5 — LRU Replacement (N/A for direct-mapped; direct eviction)
@@ -310,7 +310,7 @@ module tb_direct;
         // TEST 6 — No Second Way (invalid-way preference not applicable)
         // Verify that second conflicting address ALWAYS evicts first
         // =====================================================================
-        $display("\n--- TEST 6: Single-Way — No Invalid-Way Preference ---");
+        $display("\n--- TEST 6: Single-Way - No Invalid-Way Preference ---");
         drive_read(8'h00);     // Fill line 0 with Tag 0
         last_hit = hit_count;
         drive_read(8'h08);     // Conflict -> evicts Tag 0, fills Tag 1
@@ -457,7 +457,7 @@ module tb_direct;
         // FINAL SUMMARY
         // =====================================================================
         $display("\n=============================================================");
-        $display(" DIRECT-MAPPED CACHE — OVERALL RESULTS");
+        $display(" DIRECT-MAPPED CACHE - OVERALL RESULTS");
         $display("  Total Requests : %0d", total_requests);
         $display("  Cache Hits     : %0d", hit_count);
         $display("  Cache Misses   : %0d", miss_count);
@@ -468,18 +468,20 @@ module tb_direct;
         $display("=============================================================\n");
 
         if (fail_count == 0)
-            $display("ALL TESTS PASSED — Direct-mapped cache verification COMPLETE.\n");
+            $display("ALL TESTS PASSED - Direct-mapped cache verification COMPLETE.\n");
         else
-            $display("SOME TESTS FAILED — See [FAIL] lines above.\n");
+            $display("SOME TESTS FAILED - See [FAIL] lines above.\n");
 
+        if (fail_count != 0)
+            $fatal(1, "tb_direct failed %0d checks", fail_count);
         $finish;
     end
 
     // Timeout watchdog
     initial begin
         #200000;
-        $display("[TIMEOUT] Simulation exceeded 200 us — aborting.");
-        $finish;
+        $display("[TIMEOUT] Simulation exceeded 200 us - aborting.");
+        $fatal(1, "tb_direct timeout");
     end
 
 endmodule

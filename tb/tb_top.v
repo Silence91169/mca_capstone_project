@@ -75,6 +75,74 @@ module tb_top;
     // Timing
     integer cycles_hit_d,  cycles_miss_d;
     integer cycles_hit_2,  cycles_miss_2;
+    integer checks_passed, checks_failed;
+    integer mem_accept_count, mem_complete_count;
+    integer init_index;
+    reg [7:0] reference_mem [0:255];
+
+    task check;
+        input condition;
+        input [8*120-1:0] message;
+        begin
+            if (condition) begin
+                checks_passed = checks_passed + 1;
+                $display("  [PASS] %0s", message);
+            end else begin
+                checks_failed = checks_failed + 1;
+                $display("  [FAIL] %0s", message);
+            end
+        end
+    endtask
+
+    // Prove that changing the external selector cannot steal an in-flight
+    // transaction. top_module must continue routing completion to its owner.
+    task issue_read_with_selection_change;
+        input [7:0] addr;
+        integer c;
+        integer mem_before;
+        begin
+            c = 0;
+            mem_before = mem_accept_count;
+            sel_2way_cache = 1'b0;
+            req_valid <= 1'b1;
+            req_addr <= addr;
+            req_wr_en <= 1'b0;
+            @(posedge clk);
+            while (!dut.mem_pending && c < 10) begin
+                @(posedge clk);
+                c = c + 1;
+            end
+            // Deliberately disturb the live CPU payload after acceptance. The
+            // memory transaction must continue using the latched original addr.
+            req_addr <= addr ^ 8'h3F;
+            sel_2way_cache = 1'b1;
+            while (!resp_valid && c < 40) begin
+                @(posedge clk);
+                c = c + 1;
+            end
+            check(resp_valid && !cache_hit, "in-flight request completed with original cache owner");
+            check(resp_rdata === reference_mem[addr], "owner-latched request returned expected data");
+            check((mem_accept_count - mem_before) == 1,
+                  "selection change did not duplicate the memory transaction");
+            req_valid <= 1'b0;
+            @(posedge clk);
+            sel_2way_cache = 1'b0;
+        end
+    endtask
+
+    // Count accepted and completed backing-memory transactions independently
+    // of mem_req pulse width. A correct request must increment each exactly once.
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            mem_accept_count   <= 0;
+            mem_complete_count <= 0;
+        end else begin
+            if (dut.mem_req_active && !dut.mem_pending && !dut.mem_ready_r)
+                mem_accept_count <= mem_accept_count + 1;
+            if (dut.mem_ready_r)
+                mem_complete_count <= mem_complete_count + 1;
+        end
+    end
 
     // =========================================================================
     // Task: Reset DUT
@@ -102,21 +170,33 @@ module tb_top;
         output [7:0] rdata;
         output integer cyc_count;
         integer c;
+        integer mem_before;
         begin
             c         = 0;
+            mem_before = mem_accept_count;
             req_valid <= 1'b1;
             req_addr  <= addr;
             req_wr_en <= 1'b0;
             req_wdata <= 8'h00;
             @(posedge clk);
             // Wait until resp_valid asserted
-            while (!resp_valid) begin
+            if (!resp_valid)
+                check(busy === 1'b1, "busy asserts for an outstanding miss");
+            while (!resp_valid && c < 40) begin
                 @(posedge clk);
                 c = c + 1;
+            end
+            if (!resp_valid) begin
+                $display("  [FAIL] read timeout at address 0x%02h", addr);
+                checks_failed = checks_failed + 1;
+                $fatal(1, "integration read timed out");
             end
             is_hit  = cache_hit;
             rdata   = resp_rdata;
             cyc_count = c + 1;
+            check(resp_rdata === reference_mem[addr], "integration read returned expected data");
+            check((mem_accept_count - mem_before) == (cache_hit ? 0 : 1),
+                  "read generated exactly the expected number of memory transactions");
             req_valid <= 1'b0;
             @(posedge clk);
         end
@@ -128,16 +208,31 @@ module tb_top;
     task issue_write;
         input [7:0] addr;
         input [7:0] wdata;
+        input       expected_hit;
+        integer c;
+        integer mem_before;
         begin
+            c = 0;
+            mem_before = mem_accept_count;
             req_valid <= 1'b1;
             req_addr  <= addr;
             req_wr_en <= 1'b1;
             req_wdata <= wdata;
             @(posedge clk);
-            while (!resp_valid) @(posedge clk);
+            while (!resp_valid && c < 40) begin
+                @(posedge clk);
+                c = c + 1;
+            end
+            if (!resp_valid)
+                $fatal(1, "integration write timed out");
+            check(cache_hit === expected_hit, "write hit status matches expectation");
+            check((mem_accept_count - mem_before) == 1,
+                  "write generated exactly one memory transaction");
+            reference_mem[addr] = wdata;
             req_valid <= 1'b0;
             req_wr_en <= 1'b0;
             @(posedge clk);
+            check(dut.main_mem[addr] === wdata, "write-through updated main memory");
         end
     endtask
 
@@ -236,6 +331,40 @@ module tb_top;
         $dumpvars(0, tb_top);
 
         total_req = 46;
+        checks_passed = 0;
+        checks_failed = 0;
+        mem_accept_count = 0;
+        mem_complete_count = 0;
+        for (init_index = 0; init_index < 256; init_index = init_index + 1) begin
+            reference_mem[init_index] = init_index[7:0] ^ 8'hA5;
+            dut.main_mem[init_index] = init_index[7:0] ^ 8'hA5;
+        end
+
+        // Functional integration smoke tests for both cache selections.
+        sel_2way_cache = 1'b0;
+        do_reset;
+        begin : direct_functional
+            reg hit_flag; reg [7:0] rd; integer cyc;
+            issue_read(8'h3C, hit_flag, rd, cyc);
+            check(hit_flag == 1'b0, "direct cold read misses");
+            issue_read(8'h3C, hit_flag, rd, cyc);
+            check(hit_flag == 1'b1, "direct repeated read hits");
+            issue_write(8'h3C, 8'hD3, 1'b1);
+            issue_read_with_selection_change(8'h6C);
+        end
+
+        sel_2way_cache = 1'b1;
+        do_reset;
+        begin : twoway_functional
+            reg hit_flag; reg [7:0] rd; integer cyc;
+            issue_read(8'h40, hit_flag, rd, cyc);
+            check(hit_flag == 1'b0, "2-way cold read misses");
+            issue_read(8'h44, hit_flag, rd, cyc);
+            check(hit_flag == 1'b0, "2-way second same-set tag misses");
+            issue_read(8'h40, hit_flag, rd, cyc);
+            check(hit_flag == 1'b1, "2-way retains both same-set tags");
+            issue_write(8'h44, 8'hE4, 1'b1);
+        end
 
         // -----------------------------------------------------------------------
         // RUN 1: Direct-Mapped Cache (sel_2way_cache = 0)
@@ -243,7 +372,7 @@ module tb_top;
         sel_2way_cache = 1'b0;
         do_reset;
         $display("============================================================");
-        $display("  INTEGRATION BENCHMARK — Direct-Mapped Cache (sel=0)");
+        $display("  INTEGRATION BENCHMARK - Direct-Mapped Cache (sel=0)");
         $display("============================================================");
 
         run_all_workloads(0,
@@ -251,6 +380,10 @@ module tb_top;
             misses_direct, misses_direct, misses_direct, misses_direct);
 
         total_hits_d = hits_wb_seq_d + hits_wb_tmp_d + hits_wb_con_d + hits_wb_mix_d;
+        check(hits_wb_seq_d == 8, "direct sequential benchmark produced 8 hits");
+        check(hits_wb_tmp_d == 6, "direct temporal benchmark produced 6 hits");
+        check(hits_wb_con_d == 0, "direct two-address conflict benchmark produced 0 hits");
+        check(hits_wb_mix_d == 5, "direct mixed benchmark produced 5 hits");
 
         $display("  Workload        | Requests | Hits | Misses | Hit Rate");
         $display("  ----------------+----------+------+--------+---------");
@@ -273,7 +406,7 @@ module tb_top;
         sel_2way_cache = 1'b1;
         do_reset;
         $display("============================================================");
-        $display("  INTEGRATION BENCHMARK — 2-Way LRU Cache (sel=1)");
+        $display("  INTEGRATION BENCHMARK - 2-Way LRU Cache (sel=1)");
         $display("============================================================");
 
         run_all_workloads(1,
@@ -281,6 +414,10 @@ module tb_top;
             misses_2way, misses_2way, misses_2way, misses_2way);
 
         total_hits_2 = hits_wb_seq_2 + hits_wb_tmp_2 + hits_wb_con_2 + hits_wb_mix_2;
+        check(hits_wb_seq_2 == 8, "2-way sequential benchmark produced 8 hits");
+        check(hits_wb_tmp_2 == 6, "2-way temporal benchmark produced 6 hits");
+        check(hits_wb_con_2 == 10, "2-way two-address conflict benchmark produced 10 hits");
+        check(hits_wb_mix_2 == 6, "2-way mixed benchmark produced 6 hits");
 
         $display("  Workload        | Requests | Hits | Misses | Hit Rate");
         $display("  ----------------+----------+------+--------+---------");
@@ -327,10 +464,23 @@ module tb_top;
 
         $display("============================================================");
         $display("  [KAAVYA] tb_top: Integration benchmark COMPLETE.");
+        $display("  Executable checks: %0d passed, %0d failed", checks_passed, checks_failed);
+        $display("  Memory transactions: %0d accepted, %0d completed", mem_accept_count, mem_complete_count);
         $display("============================================================");
 
         #20;
+        if (checks_failed != 0)
+            $fatal(1, "tb_top failed %0d checks", checks_failed);
+        if (mem_accept_count != mem_complete_count)
+            $fatal(1, "accepted/completed memory transaction mismatch");
+        if ($test$plusargs("FORCE_FAIL"))
+            $fatal(1, "intentional failure-propagation self-test");
         $finish;
+    end
+
+    initial begin
+        #500000;
+        $fatal(1, "tb_top global timeout");
     end
 
 endmodule
