@@ -7,7 +7,7 @@
 IVERILOG ?= iverilog
 VVP      ?= vvp
 
-.PHONY: all direct sim_direct sim_2way sim_lru_fsm test sim clean help
+.PHONY: all direct sim_direct sim_2way sim_lru_fsm sim_top test sim clean help
 
 all: test
 
@@ -38,6 +38,15 @@ sim_lru_fsm:
 	$(IVERILOG) -g2001 -Wall -o build/sim_lru_fsm.vvp rtl/lru_controller.v rtl/cache_fsm.v tb/tb_lru_fsm.v
 	@echo ">>> Running LRU & FSM Unit Simulation..."
 	$(VVP) build/sim_lru_fsm.vvp | tee results/sim_lru_fsm.log
+
+sim_top:
+	@mkdir -p build results waveforms
+	@echo ">>> Compiling Integration Top-Level (Phase II)..."
+	$(IVERILOG) -g2001 -Wall -o build/sim_top.vvp \
+		rtl/lru_controller.v rtl/cache_2way.v rtl/cache_direct.v rtl/top_module.v \
+		tb/tb_top.v
+	@echo ">>> Running Integration Benchmark Simulation..."
+	$(VVP) build/sim_top.vvp | tee results/sim_top.log
 
 clean:
 	@rm -f build/*.vvp results/*.log waveforms/*.vcd

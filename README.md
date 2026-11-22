@@ -1,19 +1,41 @@
 # Design and Performance Analysis of a 2-Way Set-Associative Cache with LRU Replacement Compared with a Direct-Mapped Cache
 
-> **Current Project Status: Phase I Complete — Synthesizable Verilog Verified & IEEE Report Ready**  
-> *Both Direct-Mapped and 2-Way Set-Associative Caches fully implemented, simulated in Icarus Verilog, and documented in IEEE format.*
+> **Project Status: Phase I & Phase II Complete — Full Integration, Verification & Final IEEE Report Ready**  
+> *Both Direct-Mapped and 2-Way Set-Associative Caches fully implemented, integrated with shared behavioral memory (`top_module.v`), verified across 96 hardware assertions, benchmarked across 4 standardized workloads, and documented in IEEE Conference format.*
 
 ---
 
-## 📌 Phase I Submission Quick Links
+## 📌 Phase II Project Deliverables & Submission Links
 
-- 📄 **IEEE Technical Report (PDF):** [`docs/IEEE_REPORT.pdf`](docs/IEEE_REPORT.pdf)
+- 📄 **Final IEEE Technical Report (PDF):** [`docs/IEEE_REPORT.pdf`](docs/IEEE_REPORT.pdf)
 - 🎥 **Prototype Demo Video Link:** [Google Drive Demo Video (5-Minute Walkthrough)](https://drive.google.com/file/d/1s9-p3VAnroPm70vCqMKWxDDHWJo9CIOd/view?usp=sharing)
-- 📊 **Verification & Benchmark Report:** [`docs/VERIFICATION_REPORT.md`](docs/VERIFICATION_REPORT.md)
-- 💻 **To Run Full Simulation on Terminal:**
+- 📊 **Integration Benchmark Results:** [`results/sim_top.log`](results/sim_top.log) & [`results/performance_comparison.csv`](results/performance_comparison.csv)
+- 📁 **Top-Level Integration Wrapper:** [`rtl/top_module.v`](rtl/top_module.v)
+- 🧪 **Comparative Benchmark Testbench:** [`tb/tb_top.v`](tb/tb_top.v)
+- 💻 **Commands to Run on Terminal:**
   ```bash
-  make sim    # Compiles and runs both caches across all benchmark traces
+  make sim_top   # Runs Phase II integration benchmark comparing both caches side-by-side
+  make sim       # Runs automated regression suite across all modular unit testbenches
   ```
+
+---
+
+## 🏆 Key Phase II Benchmark Results (46 Total Requests)
+
+| Access Workload | Total Requests | Direct-Mapped Hits | 2-Way LRU Hits | Hit Rate (DM / 2-Way) | Associativity Advantage |
+|:---|:---:|:---:|:---:|:---:|:---:|
+| **Sequential Stream** | 16 | 8 | 8 | 50.0% / 50.0% | Tie (equal capacity) |
+| **Temporal Repetition** | 8 | 6 | 6 | 75.0% / 75.0% | Tie (no conflict) |
+| **Conflict-Heavy (Thrashing)** | **12** | **0** | **10** | **0.0% / 83.3%** | **+83.3% (Eliminates Thrashing!)** |
+| **Mixed Interleaved** | 10 | 5 | 6 | 50.0% / 60.0% | +10.0% advantage |
+| **OVERALL TOTAL** | **46** | **19** | **30** | **41.3% / 65.2%** | **+23.9% Net Advantage** |
+
+- **Total Verification Assertions:** **96 / 96 PASS (100% Pass Rate)**
+  - Direct-Mapped Unit Tests (`tb_direct.v`): 17/17 PASS
+  - 2-Way Datapath Tests (`tb_cache_2way_keshav.v`): 26/26 PASS
+  - 2-Way Extended Suite (`tb_2way.v`): 18/18 PASS
+  - LRU & FSM Tests (`tb_lru_fsm.v`): 24/24 PASS
+  - Phase II Integration Benchmark (`tb_top.v`): 11/11 PASS
 
 ---
 
