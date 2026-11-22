@@ -187,7 +187,7 @@ module tb_2way;
     // =========================================================================
     task check;
         input condition;
-        input [479:0] test_name;
+        input [8*120-1:0] test_name;
         begin
             if (condition) begin
                 $display("  [PASS] %0s", test_name);
@@ -442,7 +442,7 @@ module tb_2way;
         // FINAL SUMMARY
         // =====================================================================
         $display("\n=============================================================");
-        $display(" 2-WAY CACHE — OVERALL RESULTS");
+        $display(" 2-WAY CACHE - OVERALL RESULTS");
         $display("  Total Requests : %0d", total_requests);
         $display("  Cache Hits     : %0d", hit_count);
         $display("  Cache Misses   : %0d", miss_count);
@@ -453,18 +453,20 @@ module tb_2way;
         $display("=============================================================\n");
 
         if (fail_count == 0)
-            $display("ALL TESTS PASSED — 2-way cache verification COMPLETE.\n");
+            $display("ALL TESTS PASSED - 2-way cache verification COMPLETE.\n");
         else
-            $display("SOME TESTS FAILED — See [FAIL] lines above.\n");
+            $display("SOME TESTS FAILED - See [FAIL] lines above.\n");
 
+        if (fail_count != 0)
+            $fatal(1, "tb_2way failed %0d checks", fail_count);
         $finish;
     end
 
     // Timeout watchdog
     initial begin
         #200000;
-        $display("[TIMEOUT] Simulation exceeded 200 us — aborting.");
-        $finish;
+        $display("[TIMEOUT] Simulation exceeded 200 us - aborting.");
+        $fatal(1, "tb_2way timeout");
     end
 
 endmodule

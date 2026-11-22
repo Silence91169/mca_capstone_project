@@ -1,7 +1,7 @@
 # Design and Performance Analysis of a 2-Way Set-Associative Cache with LRU Replacement Compared with a Direct-Mapped Cache
 
-> **Project Status: Phase I & Phase II Complete — Full Integration, Verification & Final IEEE Report Ready**  
-> *Both Direct-Mapped and 2-Way Set-Associative Caches fully implemented, integrated with shared behavioral memory (`top_module.v`), verified across 96 hardware assertions, benchmarked across 4 standardized workloads, and documented in IEEE Conference format.*
+> **Project Status: RTL implemented and regression verified; report reconciliation remains pending.**
+> *Both caches and the LRU controller are integrated with a shared behavioral memory. The submitted caches use internal three-state controllers; `cache_fsm.v` is a separately verified six-state reference controller. Results below come from executable simulations and separately identified workloads.*
 
 ---
 
@@ -32,12 +32,14 @@
 | **Mixed Interleaved** | 10 | 5 | 6 | 50.0% / 60.0% | +10.0% advantage |
 | **OVERALL TOTAL** | **46** | **19** | **30** | **41.3% / 65.2%** | **+23.9% Net Advantage** |
 
-- **Total Verification Assertions:** **96 / 96 PASS (100% Pass Rate)**
+- **Current executable regression checks:** **347 / 347 PASS**
   - Direct-Mapped Unit Tests (`tb_direct.v`): 17/17 PASS
   - 2-Way Datapath Tests (`tb_cache_2way_keshav.v`): 26/26 PASS
   - 2-Way Extended Suite (`tb_2way.v`): 18/18 PASS
   - LRU & FSM Tests (`tb_lru_fsm.v`): 24/24 PASS
-  - Phase II Integration Benchmark (`tb_top.v`): 11/11 PASS
+  - Self-checking integration and benchmark (`tb_top.v`): 262/262 PASS
+
+The integration benchmark uses a **two-address conflict trace** (`0x00`, `0x08`), which fits in a two-way set after two cold misses. The modular performance suite also retains a separate **three-address conflict trace** (`0x00`, `0x04`, `0x08`), which exceeds two-way associativity and produces 0% hits for both caches. These datasets are intentionally stored separately and must not be merged into one table.
 
 ---
 
@@ -167,21 +169,21 @@ Field:                  TAG (5 bits)                    |  LINE INDEX (3 bits)
   - Git configuration and `.gitignore` setup
   - Architectural requirements and signal definition ([`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md))
   - Team task breakdown and ownership ([`docs/TEAM_RESPONSIBILITIES.md`](docs/TEAM_RESPONSIBILITIES.md))
-- [ ] **Phase 2: Core RTL Development**
+- [x] **Phase 2: Core RTL Development**
   - [x] Direct-mapped cache datapath and control unit ([`docs/DIRECT_MAPPED_CACHE.md`](docs/DIRECT_MAPPED_CACHE.md))
-  - [ ] 2-way set-associative cache datapath and dual tag comparators
-  - [ ] LRU replacement tracking logic and controller FSM
-  - [ ] 256 × 8-bit synchronous main memory behavioral model
-- [ ] **Phase 3: Verification & Testbench Implementation**
-  - [x] Unit testbench for direct-mapped cache (`tb/tb_direct.v` - 31/31 tests passing)
-  - [ ] Unit testbenches for 2-way cache module
-  - [ ] Synthetic access pattern generators (thrashing, localized loops, sequential streams)
-  - [ ] Memory interaction assertions and latency monitors
-- [ ] **Phase 4: Comparative Simulation & Performance Analysis**
-  - Execution of comparative simulation suites
-  - Hit/miss rate extraction and conflict miss analysis
-  - GTKWave waveform verification
-  - Final report preparation and conclusion
+  - [x] 2-way set-associative cache datapath and dual tag comparators
+  - [x] LRU replacement tracking logic
+  - [x] Internal three-state cache controllers and separate six-state reference FSM
+  - [x] 256 × 8-bit behavioral main memory model
+- [x] **Phase 3: Verification & Testbench Implementation**
+  - [x] Direct-mapped unit testbench (17 checks)
+  - [x] Two-way unit and extended testbenches (26 + 18 checks)
+  - [x] LRU/reference-FSM testbench (24 checks)
+  - [x] Self-checking integration benchmark (262 checks)
+- [x] **Phase 4: Comparative Simulation & Performance Analysis**
+  - [x] Separate two-address and three-address conflict datasets
+  - [x] Reproducible CSV generation from simulation logs
+  - [ ] Reconcile and regenerate the final IEEE PDF from reviewed editable sources
 
 ---
 

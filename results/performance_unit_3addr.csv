@@ -1,0 +1,9 @@
+Dataset,Trace,Cache Type,Total Requests,Hits,Misses,Hit Rate (%),Miss Rate (%)
+Three-address unit suite,Sequential,2-Way Set-Associative,16,8,8,50,50
+Three-address unit suite,Sequential,Direct-Mapped,16,8,8,50,50
+Three-address unit suite,Repeated,2-Way Set-Associative,8,7,1,87,12
+Three-address unit suite,Repeated,Direct-Mapped,8,7,1,87,12
+Three-address unit suite,Conflict,2-Way Set-Associative,12,0,12,0,100
+Three-address unit suite,Conflict,Direct-Mapped,12,0,12,0,100
+Three-address unit suite,Mixed,2-Way Set-Associative,10,5,5,50,50
+Three-address unit suite,Mixed,Direct-Mapped,10,3,7,30,70

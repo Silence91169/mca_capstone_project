@@ -16,14 +16,14 @@ VCD info: dumpfile waveforms/wave_direct.vcd opened for output.
 
 --- TEST 4: Conflict Access (Same Line, Different Tags) ---
   [PASS] T4a: addr=0x08 (Line 0, Tag 1) is a MISS (evicts 0x00)
-  [PASS] Ses again (evicted by conflict — direct-mapped limitation)
+  [PASS] T4b: addr=0x00 MISSes again after direct-mapped conflict eviction
 
 --- TEST 5: Direct Eviction (No LRU in Direct-Mapped) ---
-  [PASS]  conflict: 1 initial hit then 7 MISSes (thrashing confirmed)
+  [PASS] T5: Alternating conflict: 1 initial hit then 7 MISSes (thrashing confirmed)
   Thrash results: Hits=1  Misses=7 (1 hit because line0 had addr=0x00 from T4b)
 
---- TEST 6: Single-Way — No Invalid-Way Preference ---
-  [PASS] t addr=0x08 always MISSes (direct-mapped evicts immediately)
+--- TEST 6: Single-Way - No Invalid-Way Preference ---
+  [PASS] T6a: Conflict addr=0x08 always MISSes (direct-mapped evicts immediately)
   [PASS] T6b: addr=0x00 evicted by 0x08, MISSes again
 
 --- TEST 7: Write Operations ---
@@ -32,7 +32,7 @@ VCD info: dumpfile waveforms/wave_direct.vcd opened for output.
   [PASS] T7c: Read after write returns 0xAB
   [PASS] T7d: Write to uncached addr=0x10 is a WRITE MISS
   [PASS] T7e: Write-miss: memory[0x10] = 0xCD (write-through)
-  [PASS] te-allocate: addr=0x00 still cached after write-miss at 0x10
+  [PASS] T7f: No-write-allocate: addr=0x00 still cached after write-miss at 0x10
 
 --- TEST 8: Reset Clears Cache State ---
   [PASS] T8: After reset, addr=0x00 MISSes (valid bits cleared)
@@ -50,7 +50,7 @@ VCD info: dumpfile waveforms/wave_direct.vcd opened for output.
   Mixed      | Req=10  Hits=3  Misses=7  HitRate=30%  MissRate=70%
 
 =============================================================
- DIRECT-MAPPED CACHE — OVERALL RESULTS
+ DIRECT-MAPPED CACHE - OVERALL RESULTS
   Total Requests : 73
   Cache Hits     : 26
   Cache Misses   : 47
@@ -60,6 +60,6 @@ VCD info: dumpfile waveforms/wave_direct.vcd opened for output.
   Tests FAILED   : 0
 =============================================================
 
-ALL TESTS PASSED — Direct-mapped cache verification COMPLETE.
+ALL TESTS PASSED - Direct-mapped cache verification COMPLETE.
 
-tb/tb_direct.v:475: $finish called at 4015000 (1ps)
+tb/tb_direct.v:477: $finish called at 4015000 (1ps)

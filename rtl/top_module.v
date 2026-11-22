@@ -40,7 +40,11 @@ module top_module (
     reg  [7:0] main_mem [0:255];
     reg  [7:0] mem_rdata_r;
     reg        mem_ready_r;
-    reg  [1:0] mem_lat_cnt;   // 2-cycle memory latency counter
+    reg        mem_pending;
+    reg        mem_owner;     // Cache that owns the in-flight transaction
+    reg        mem_wr_latched;
+    reg  [7:0] mem_addr_latched;
+    reg  [7:0] mem_wdata_latched;
 
     // Arbitrated memory bus — only the active cache drives the bus
     wire       mem_req_d,  mem_wr_en_d;
@@ -48,30 +52,43 @@ module top_module (
     wire       mem_req_2,  mem_wr_en_2;
     wire [7:0] mem_addr_2, mem_wdata_2;
 
-    wire       mem_req_active  = sel_2way_cache ? mem_req_2  : mem_req_d;
-    wire       mem_wr_active   = sel_2way_cache ? mem_wr_en_2 : mem_wr_en_d;
-    wire [7:0] mem_addr_active = sel_2way_cache ? mem_addr_2 : mem_addr_d;
-    wire [7:0] mem_wdata_active= sel_2way_cache ? mem_wdata_2 : mem_wdata_d;
+    // Once a memory transaction is accepted, its cache owner and bus payload are
+    // held until completion. This both prevents duplicate acceptance while mem_req
+    // remains asserted and makes cache selection changes harmless in flight.
+    wire       route_2way      = (mem_pending || mem_ready_r) ? mem_owner : sel_2way_cache;
+    wire       mem_req_active  = route_2way ? mem_req_2   : mem_req_d;
+    wire       mem_wr_active   = route_2way ? mem_wr_en_2 : mem_wr_en_d;
+    wire [7:0] mem_addr_active = route_2way ? mem_addr_2  : mem_addr_d;
+    wire [7:0] mem_wdata_active= route_2way ? mem_wdata_2 : mem_wdata_d;
 
     // Memory controller: 2-cycle fixed latency
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             mem_ready_r <= 1'b0;
             mem_rdata_r <= 8'h00;
-            mem_lat_cnt <= 2'd0;
+            mem_pending       <= 1'b0;
+            mem_owner         <= 1'b0;
+            mem_wr_latched    <= 1'b0;
+            mem_addr_latched  <= 8'h00;
+            mem_wdata_latched <= 8'h00;
         end else begin
-            if (mem_req_active && mem_lat_cnt == 2'd0) begin
-                mem_lat_cnt <= 2'd1;
+            mem_ready_r <= 1'b0;
+            if (!mem_pending && !mem_ready_r && mem_req_active) begin
+                mem_pending       <= 1'b1;
+                mem_owner         <= route_2way;
+                mem_wr_latched    <= mem_wr_active;
+                mem_addr_latched  <= mem_addr_active;
+                mem_wdata_latched <= mem_wdata_active;
+            end else if (mem_pending) begin
+                // Completion one cycle after acceptance. The cache observes and
+                // consumes this pulse on the following active clock edge.
+                mem_pending <= 1'b0;
                 mem_ready_r <= 1'b0;
-            end else if (mem_lat_cnt == 2'd1) begin
-                mem_lat_cnt <= 2'd0;
                 mem_ready_r <= 1'b1;
-                if (mem_wr_active)
-                    main_mem[mem_addr_active] <= mem_wdata_active;
+                if (mem_wr_latched)
+                    main_mem[mem_addr_latched] <= mem_wdata_latched;
                 else
-                    mem_rdata_r <= main_mem[mem_addr_active];
-            end else begin
-                mem_ready_r <= 1'b0;
+                    mem_rdata_r <= main_mem[mem_addr_latched];
             end
         end
     end
@@ -85,7 +102,7 @@ module top_module (
     cache_direct u_direct (
         .clk       (clk),
         .rst_n     (rst_n),
-        .req_valid (sel_2way_cache ? 1'b0 : req_valid),
+        .req_valid (route_2way ? 1'b0 : req_valid),
         .req_addr  (req_addr),
         .req_wr_en (req_wr_en),
         .req_wdata (req_wdata),
@@ -98,7 +115,7 @@ module top_module (
         .mem_addr  (mem_addr_d),
         .mem_wdata (mem_wdata_d),
         .mem_rdata (mem_rdata_r),
-        .mem_ready (sel_2way_cache ? 1'b0 : mem_ready_r)
+        .mem_ready ((!mem_owner && mem_ready_r) ? 1'b1 : 1'b0)
     );
 
     // =========================================================================
@@ -110,7 +127,7 @@ module top_module (
     cache_2way u_2way (
         .clk       (clk),
         .rst_n     (rst_n),
-        .req_valid (sel_2way_cache ? req_valid : 1'b0),
+        .req_valid (route_2way ? req_valid : 1'b0),
         .req_addr  (req_addr),
         .req_wr_en (req_wr_en),
         .req_wdata (req_wdata),
@@ -123,16 +140,16 @@ module top_module (
         .mem_addr  (mem_addr_2),
         .mem_wdata (mem_wdata_2),
         .mem_rdata (mem_rdata_r),
-        .mem_ready (sel_2way_cache ? mem_ready_r : 1'b0)
+        .mem_ready ((mem_owner && mem_ready_r) ? 1'b1 : 1'b0)
     );
 
     // =========================================================================
     // Output Mux — route active cache outputs to CPU
     // =========================================================================
-    assign resp_rdata = sel_2way_cache ? resp_rdata_2 : resp_rdata_d;
-    assign resp_valid = sel_2way_cache ? resp_valid_2 : resp_valid_d;
-    assign cache_hit  = sel_2way_cache ? cache_hit_2  : cache_hit_d;
-    assign busy       = sel_2way_cache ? busy_2        : busy_d;
+    assign resp_rdata = route_2way ? resp_rdata_2 : resp_rdata_d;
+    assign resp_valid = route_2way ? resp_valid_2 : resp_valid_d;
+    assign cache_hit  = route_2way ? cache_hit_2  : cache_hit_d;
+    assign busy       = route_2way ? busy_2       : busy_d;
 
 endmodule
 

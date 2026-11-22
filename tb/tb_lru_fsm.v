@@ -260,6 +260,8 @@ module tb_lru_fsm;
         else
             $display(">>> SOME TESTS FAILED! <<<");
 
+        if (failed_tests != 0)
+            $fatal(1, "tb_lru_fsm failed %0d checks", failed_tests);
         $finish;
     end
 

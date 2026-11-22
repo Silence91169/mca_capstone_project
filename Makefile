@@ -6,15 +6,16 @@
 
 IVERILOG ?= iverilog
 VVP      ?= vvp
+SHELL := /bin/bash
+.SHELLFLAGS := -o pipefail -c
 
-.PHONY: all direct sim_direct sim_2way sim_lru_fsm sim_top test sim clean help
+.PHONY: all direct sim_direct sim_2way sim_extended_2way sim_lru_fsm sim_top parse test sim clean help
 
 all: test
 
-test: sim
-sim:
-	@mkdir -p build results waveforms
-	@bash sim/run_sim.sh
+test: direct sim_2way sim_extended_2way sim_lru_fsm sim_top parse
+
+sim: test
 
 direct:
 	@mkdir -p build results waveforms
@@ -32,6 +33,13 @@ sim_2way:
 	@echo ">>> Running 2-Way Set-Associative Cache Simulation..."
 	$(VVP) build/sim_2way_keshav.vvp | tee results/sim_2way_keshav.log
 
+sim_extended_2way:
+	@mkdir -p build results waveforms
+	@echo ">>> Compiling extended 2-Way cache verification..."
+	$(IVERILOG) -g2001 -Wall -o build/sim_2way.vvp rtl/cache_2way.v rtl/lru_controller.v tb/tb_2way.v
+	@echo ">>> Running extended 2-Way cache verification..."
+	$(VVP) build/sim_2way.vvp | tee results/sim_2way.log
+
 sim_lru_fsm:
 	@mkdir -p build results waveforms
 	@echo ">>> Compiling LRU Controller & Cache FSM (Verilog-2001)..."
@@ -48,6 +56,9 @@ sim_top:
 	@echo ">>> Running Integration Benchmark Simulation..."
 	$(VVP) build/sim_top.vvp | tee results/sim_top.log
 
+parse:
+	python3 sim/parse_results.py
+
 clean:
 	@rm -f build/*.vvp results/*.log waveforms/*.vcd
 	@echo ">>> Cleaned build binaries, logs, and waveforms."
@@ -56,5 +67,6 @@ help:
 	@echo "Available build targets:"
 	@echo "  make direct      - Compile and run direct-mapped cache simulation"
 	@echo "  make sim_2way    - Compile and run Keshav's 2-way cache unit test"
+	@echo "  make test        - Run every unit, reference-FSM, integration, and parser test"
 	@echo "  make clean       - Remove generated simulation outputs"
 

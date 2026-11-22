@@ -117,11 +117,11 @@ flowchart TD
     CheckValid -->|"Way 1 is Invalid"| AllocWay1["Allocate into Way 1<br/>Set V1=1, Tag1=Tag, Data1=MemData"]
     CheckValid -->|"Both Ways Valid"| CheckLRU{"Check LRU[set_index]"}
 
-    CheckLRU -->|"LRU == 0 (Way 0 MRU)"| VictimWay1["Evict Way 1 (Victim)<br/>Overwrite Way 1 with new data"]
-    CheckLRU -->|"LRU == 1 (Way 1 MRU)"| VictimWay0["Evict Way 0 (Victim)<br/>Overwrite Way 0 with new data"]
+    CheckLRU -->|"LRU == 0 (Way 0 victim)"| VictimWay0["Evict Way 0 (Victim)<br/>Overwrite Way 0 with new data"]
+    CheckLRU -->|"LRU == 1 (Way 1 victim)"| VictimWay1["Evict Way 1 (Victim)<br/>Overwrite Way 1 with new data"]
 
-    AllocWay0 --> UpdateLRU0["Update LRU[set_index] = 0<br/>(Way 0 is now MRU)"]
-    AllocWay1 --> UpdateLRU1["Update LRU[set_index] = 1<br/>(Way 1 is now MRU)"]
-    VictimWay1 --> UpdateLRU1
-    VictimWay0 --> UpdateLRU0
+    AllocWay0 --> UpdateLRU1["Update LRU[set_index] = 1<br/>(Way 1 is next victim)"]
+    AllocWay1 --> UpdateLRU0["Update LRU[set_index] = 0<br/>(Way 0 is next victim)"]
+    VictimWay1 --> UpdateLRU0
+    VictimWay0 --> UpdateLRU1
 ```

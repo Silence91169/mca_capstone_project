@@ -5,7 +5,7 @@
 # Member: Shivam (Direct-Mapped RTL Owner)
 # ==============================================================================
 
-set -e
+set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -33,6 +33,6 @@ echo "==========================================================================
 echo " SIMULATION RUN COMPLETED SUCCESSFULLY"
 echo " - Binary:   build/sim_direct.vvp"
 echo " - Log:      results/sim_direct.log"
-echo " - Waveform: waveforms/direct_cache.vcd"
+echo " - Waveform: waveforms/wave_direct.vcd"
 echo "==============================================================================="
 

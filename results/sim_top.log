@@ -1,0 +1,305 @@
+VCD info: dumpfile waveforms/wave_top.vcd opened for output.
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] direct cold read misses
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] direct repeated read hits
+  [PASS] write hit status matches expectation
+  [PASS] write generated exactly one memory transaction
+  [PASS] write-through updated main memory
+  [PASS] in-flight request completed with original cache owner
+  [PASS] owner-latched request returned expected data
+  [PASS] selection change did not duplicate the memory transaction
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] 2-way cold read misses
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] 2-way second same-set tag misses
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] 2-way retains both same-set tags
+  [PASS] write hit status matches expectation
+  [PASS] write generated exactly one memory transaction
+  [PASS] write-through updated main memory
+============================================================
+  INTEGRATION BENCHMARK - Direct-Mapped Cache (sel=0)
+============================================================
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] direct sequential benchmark produced 8 hits
+  [PASS] direct temporal benchmark produced 6 hits
+  [PASS] direct two-address conflict benchmark produced 0 hits
+  [PASS] direct mixed benchmark produced 5 hits
+  Workload        | Requests | Hits | Misses | Hit Rate
+  ----------------+----------+------+--------+---------
+  Sequential      |    16    |  8  |   8   | 50%
+  Temporal        |     8    |  6  |   2   | 75%
+  Conflict-Heavy  |    12    |  0  |   12   | 0%
+  Mixed           |    10    |  5  |   5   | 50%
+  ----------------+----------+------+--------+---------
+  TOTAL           |    46    |  19  |   27   | 41%
+
+============================================================
+  INTEGRATION BENCHMARK - 2-Way LRU Cache (sel=1)
+============================================================
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] busy asserts for an outstanding miss
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] integration read returned expected data
+  [PASS] read generated exactly the expected number of memory transactions
+  [PASS] 2-way sequential benchmark produced 8 hits
+  [PASS] 2-way temporal benchmark produced 6 hits
+  [PASS] 2-way two-address conflict benchmark produced 10 hits
+  [PASS] 2-way mixed benchmark produced 6 hits
+  Workload        | Requests | Hits | Misses | Hit Rate
+  ----------------+----------+------+--------+---------
+  Sequential      |    16    |  8  |   8   | 50%
+  Temporal        |     8    |  6  |   2   | 75%
+  Conflict-Heavy  |    12    |  10  |   2   | 83%
+  Mixed           |    10    |  6  |   4   | 60%
+  ----------------+----------+------+--------+---------
+  TOTAL           |    46    |  30  |   16   | 65%
+
+============================================================
+  COMPARATIVE PERFORMANCE SUMMARY (Phase II)
+============================================================
+  Metric              | Direct-Mapped | 2-Way LRU
+  --------------------+---------------+-----------
+  Total Requests      |      46       |     46
+  Total Hits          |      19       |     30
+  Total Misses        |      27       |     16
+  Overall Hit Rate    |     41%      |    65%
+  Conflict Hit Rate   |      0%      |    83%
+============================================================
+  RESULT: 2-Way LRU outperforms Direct-Mapped by 11 hits (23% advantage)
+============================================================
+  [KAAVYA] tb_top: Integration benchmark COMPLETE.
+  Executable checks: 262 passed, 0 failed
+  Memory transactions: 16 accepted, 16 completed
+============================================================
+tb/tb_top.v:478: $finish called at 3195000 (1ps)

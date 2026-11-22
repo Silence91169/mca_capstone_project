@@ -8,11 +8,12 @@
 \usepackage{url}
 
 \setlength{\columnsep}{0.25in}
+\setlength{\emergencystretch}{2em}
 
-\title{\textbf{\LARGE Design and Performance Analysis of a 2-Way Set-Associative Cache with LRU Replacement Compared with a Direct-Mapped Cache}}
+\title{\textbf{\Large Design and Performance Analysis of a 2-Way Set-Associative Cache with LRU Replacement Compared with a Direct-Mapped Cache}}
 
 \author{
-\textbf{Yash Raghubanshi$^{1}$, Shivam Dixit$^{2}$, Keshav$^{3}$, Shitanshu$^{4}$, Kaavya$^{5}$} \\
+\textbf{Yash Raghubanshi$^{1}$, Shivam Dixit$^{2}$, Keshav$^{3}$, Shitanshu Kumar Singh$^{4}$, Kaavya$^{5}$} \\
 \textit{Department of Computer Applications (MCA), Newton School of Technology, Rishihood University} \\
 $^{1}$Project Lead, Architecture \& Integration \quad
 $^{2}$Direct-Mapped Cache RTL \quad
@@ -20,9 +21,9 @@ $^{3}$2-Way Cache Datapath RTL \\
 $^{4}$LRU Controller \& FSM \quad
 $^{5}$Verification \& Benchmarking \\
 Email: \texttt{yash.raghubanshi2024@nst.rishihood.edu.in} \\
-Project Repository: \url{https://github.com/Yash990-bit/mca_capstone_project}
+Project Repository: \url{https://github.com/Silence91169/mca_capstone_project}
 }
-\date{Phase II Final Report --- November 2026}
+\date{Final Verified Report --- November 2026}
 
 \begin{document}
 
@@ -30,7 +31,7 @@ Project Repository: \url{https://github.com/Yash990-bit/mca_capstone_project}
   \begin{@twocolumnfalse}
     \maketitle
     \begin{abstract}
-    \textit{The widening latency gap between processor execution pipelines and dynamic random-access memory (DRAM)---frequently designated the ``Memory Wall''---represents a fundamental bottleneck constraining modern computational throughput. Cache memories resolve this discrepancy by retaining frequently accessed instructions and data in low-latency on-chip SRAM storage. In this work, we present the register-transfer level (RTL) design, complete system integration, functional verification, and empirical performance comparison of two hardware cache architectures implemented in synthesizable IEEE 1364-2001 Verilog: a Direct-Mapped Cache and a 2-Way Set-Associative Cache with a 1-bit per-set Least Recently Used (LRU) replacement policy. Both architectures enforce strictly identical physical parameters: 8-byte total capacity, 1-byte cache blocks, 8-bit byte-addressable address space backed by a 256$\times$8-bit synchronous main memory, and a Write-Through with No-Write-Allocate memory coherency policy. A comprehensive top-level integration wrapper (\texttt{top\_module}) with a shared memory interface was designed and evaluated across four standardized memory access patterns: sequential streams, temporal loops, conflict-heavy alternating references, and realistic mixed traces (46 total transactions). Empirical hardware simulation using Icarus Verilog confirms that while both topologies achieve identical hit rates on sequential (50\%) and temporal (75\%) patterns, the 2-Way Set-Associative Cache delivers an \textbf{83\% hit rate on conflict workloads} where the direct-mapped cache suffers catastrophic 100\% thrashing (0\% hit rate). Across the aggregate 46-request benchmark suite, the 2-Way LRU cache achieves an \textbf{overall hit rate of 65\%} compared to \textbf{41\%} for the Direct-Mapped baseline, demonstrating a decisive \textbf{+24 percentage-point advantage} with 96/96 passing verification assertions.}
+    \textit{This work presents RTL models and a simulation-based comparison of a Direct-Mapped Cache and a 2-Way Set-Associative Cache with one-bit true LRU state per set. Both caches use an 8-byte data capacity, one-byte blocks, an 8-bit byte-addressable space, and Write-Through with No-Write-Allocate. In the explicitly defined two-address integration workload, the Direct-Mapped cache records 19 hits from 46 requests (41.3\%) and the 2-Way cache records 30 hits (65.2\%). A separate three-address cyclic conflict workload is retained as a distinct dataset and produces zero hits for both designs. The clean Icarus Verilog regression executes 347 meaningful checks with all checks passing. No synthesis timing, area, or power measurements are claimed.}
     \end{abstract}
     \vspace{0.5em}
     \noindent\textbf{\textit{Keywords}}---Cache Memory, 2-Way Set-Associative Cache, Direct-Mapped Cache, Least Recently Used (LRU), Conflict Misses, Verilog HDL, Computer Architecture.
@@ -50,6 +51,9 @@ Cache misses are conventionally classified into Mark D. Hill's 3Cs taxonomy \cit
 
 While direct-mapped caches offer minimal latency and simple control logic, they are notoriously vulnerable to conflict thrashing. Set-associative architectures alleviate conflict misses by allowing multiple blocks to reside simultaneously in the same set index, governed by replacement policies such as Least Recently Used (LRU). This paper demonstrates the concrete hardware design, complete multi-module integration, and empirical verification of both topologies under strictly matched physical parameters.
 
+\section{Problem Statement and Objectives}
+The project addresses a focused architectural question: for equal eight-byte data capacity and identical memory policy, how does a two-way organization change conflict behavior relative to direct mapping? The objectives are to (1) implement both organizations in Verilog-2001, (2) implement true two-way LRU using one bit per set, (3) use a common CPU and backing-memory contract, (4) verify reads, writes, refills, reset, replacement, and handshakes, and (5) compare exact, reproducible synthetic address traces without extrapolating to application workloads.
+
 \section{Literature Review}
 The theoretical foundations of memory hierarchies and cache associativity were established by Alan Jay Smith \cite{smith1982}, who demonstrated that increasing associativity from direct-mapped to 2-way reduces miss rates significantly across various software traces. Hennessy and Patterson \cite{hennessy2011} formulated the quantitative trade-offs governing cache access time, power consumption, and replacement complexity, establishing that a 2-way set-associative cache of size $N$ exhibits a miss rate approximately comparable to a direct-mapped cache of size $2N$ (the ``2:1 Cache Rule of Thumb'').
 
@@ -66,6 +70,7 @@ To ensure a rigorous and scientifically valid head-to-head comparison, both cach
 \centering
 \caption{System-Level Hardware Parameters}
 \label{tab:system_specs}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lll}
 \toprule
 \textbf{Parameter} & \textbf{Direct-Mapped} & \textbf{2-Way Set-Assoc.} \\
@@ -79,9 +84,10 @@ Tag Width & 5 bits (\texttt{addr[7:3]}) & 6 bits (\texttt{addr[7:2]}) \\
 Backing Memory & 256$\times$8-bit RAM & 256$\times$8-bit RAM \\
 Write Policy & Write-Through & Write-Through \\
 Allocate Policy & No-Write-Allocate & No-Write-Allocate \\
-Target Frequency & 100 MHz (10 ns clk) & 100 MHz (10 ns clk) \\
+Simulation Clock & 10 ns period & 10 ns period \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \subsection{Address Mapping Decomposition}
@@ -119,17 +125,21 @@ The direct-mapped cache (\texttt{cache\_direct.v}) is implemented as a single-cy
 \end{itemize}
 Tag matching is computed combinationally:
 \begin{equation}
-\text{hit} = \text{valid\_array}[\text{index}] \land (\text{tag\_array}[\text{index}] == \text{req\_tag})
+\resizebox{0.96\columnwidth}{!}{$\displaystyle
+\text{hit} = \text{valid\_array}[\text{index}] \land (\text{tag\_array}[\text{index}] == \text{req\_tag})$}
 \end{equation}
 On a read hit in the \texttt{IDLE} state, the cache returns the stored data immediately without CPU stall. On a read miss, the FSM transitions to \texttt{STATE\_READ\_WAIT}, issues a memory read request, and refills the line upon assertion of \texttt{mem\_ready}.
 
 \subsection{2-Way Set-Associative Cache Microarchitecture}
 Figure \ref{fig:2way_arch} illustrates the internal organization of \texttt{cache\_2way.v}. The storage array is partitioned into Way 0 and Way 1, each containing 4 lines of 8-bit data, 6-bit tag, and 1-bit valid metadata. Dual 6-bit comparators operate in parallel on every cycle:
-\begin{align}
+\begin{equation}
+\resizebox{0.96\columnwidth}{!}{$\displaystyle
+\begin{aligned}
 \text{hit\_way0} &= \text{way0\_valid}[\text{set}] \land (\text{way0\_tag}[\text{set}] == \text{req\_tag}) \\
 \text{hit\_way1} &= \text{way1\_valid}[\text{set}] \land (\text{way1\_tag}[\text{set}] == \text{req\_tag}) \\
 \text{cache\_hit} &= \text{hit\_way0} \lor \text{hit\_way1}
-\end{align}
+\end{aligned}$}
+\end{equation}
 
 \begin{figure}[htbp]
 \centering
@@ -141,11 +151,13 @@ Figure \ref{fig:2way_arch} illustrates the internal organization of \texttt{cach
 \subsection{1-Bit Per-Set LRU Replacement Controller}
 The LRU controller (\texttt{lru\_controller.v}) tracks access recency across all 4 sets using a 4-bit register array (\texttt{lru\_bits[3:0]}). The tracking convention is:
 \begin{equation}
+\resizebox{0.96\columnwidth}{!}{$\displaystyle
 \text{lru\_bits}[s] = 
 \begin{cases}
 0, & \text{Way 0 is Least Recently Used (Victim = Way 0)} \\
 1, & \text{Way 1 is Least Recently Used (Victim = Way 1)}
 \end{cases}
+$}
 \end{equation}
 On every valid access to Set $s$ (read hit, write hit, or memory refill), the controller updates:
 \begin{equation}
@@ -153,24 +165,62 @@ On every valid access to Set $s$ (read hit, write hit, or memory refill), the co
 \end{equation}
 During line refill, the victim way is selected with prioritized invalid-way allocation:
 \begin{equation}
+\resizebox{0.94\columnwidth}{!}{$\displaystyle
 \text{refill\_way} = 
 \begin{cases}
 0, & \text{if } \sim\text{way0\_valid}[s] \\
 1, & \text{else if } \sim\text{way1\_valid}[s] \\
 \text{lru\_bits}[s], & \text{if both ways are valid}
 \end{cases}
+$}
 \end{equation}
 
 \subsection{Top-Level Integration Wrapper}
-In Phase II, a top-level integration wrapper (\texttt{top\_module.v}) was authored. It instantiates both \texttt{cache\_direct} and \texttt{cache\_2way} alongside a shared 256-byte behavioral main memory. A control signal (\texttt{sel\_2way\_cache}) steers the CPU interface to the active cache, while maintaining deterministic, fair memory state for comparative benchmarks.
+The top-level wrapper (\texttt{top\_module.v}) instantiates both caches and a shared 256-byte behavioral main memory. A control signal (\texttt{sel\_2way\_cache}) chooses the active cache. Once a memory request is accepted, the wrapper latches the owner, address, write direction, and write data until completion. Consequently, a held \texttt{mem\_req} cannot be accepted twice, and a selector or live CPU-address change cannot redirect an in-flight transaction.
+
+\subsection{FSM Architecture and Integration Status}
+The integrated direct-mapped and two-way caches each use an internal three-state controller: \texttt{IDLE}, \texttt{READ\_WAIT}, and \texttt{WRITE\_WAIT}. Read hits complete in \texttt{IDLE}; read misses wait for memory then refill; every write waits for the write-through acknowledgement. The separate \texttt{cache\_fsm.v} contribution is a six-state Moore reference controller:
+
+\begin{center}
+\fbox{\parbox{0.93\columnwidth}{\centering
+Read hit: IDLE $\rightarrow$ LOOKUP $\rightarrow$ HIT RESPONSE $\rightarrow$ IDLE\\
+Read miss: IDLE $\rightarrow$ LOOKUP $\rightarrow$ MEMORY WAIT $\rightarrow$ REFILL $\rightarrow$ RESPONSE $\rightarrow$ IDLE\\
+Write: IDLE $\rightarrow$ LOOKUP $\rightarrow$ MEMORY WAIT $\rightarrow$ RESPONSE $\rightarrow$ IDLE}}
+\end{center}
+
+The six-state module is verified independently by \texttt{tb\_lru\_fsm.v} but is \textbf{not instantiated} in \texttt{cache\_2way.v}. This status is intentional in the submitted architecture; late substitution would require complete request-context latching and additional datapath control outputs.
+
+\subsection{Main-Memory Interface}
+The cache-memory interface consists of \texttt{mem\_req}, \texttt{mem\_wr\_en}, \texttt{mem\_addr}, \texttt{mem\_wdata}, \texttt{mem\_rdata}, and \texttt{mem\_ready}. The behavioral memory accepts a request only when neither pending nor completing, latches its payload, and produces one completion pulse. The caches keep \texttt{busy} asserted throughout a wait state. Integration tests initialize memory deterministically as \texttt{memory[address] = address XOR 0xA5}; this initialization is testbench behavior, not a claim about synthesized RAM power-up state.
+
+\subsection{LRU Replacement Example}
+The implemented bit directly encodes the next victim: 0 selects Way 0 and 1 selects Way 1. The required trace maps entirely to Set 0:
+\begin{table}[htbp]
+\centering
+\caption{Verified LRU Trace in Set 0}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{cllll}
+\toprule
+Step & Access & Way 0 & Way 1 & LRU after \\
+\midrule
+1 & \texttt{0x00} miss & 00 & invalid & 1 \\
+2 & \texttt{0x10} miss & 00 & 10 & 0 \\
+3 & \texttt{0x00} hit  & 00 & 10 & 1 \\
+4 & \texttt{0x20} miss & 00 & 20 & 0 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+At Step 4, bit 1 selects Way 1, so \texttt{0x10} is evicted and \texttt{0x00} remains cached.
 
 \section{Verification Methodology}
-Verification was structured across modular unit testbenches and an integration-level comparative testbench using Icarus Verilog v13.0 and GTKWave. All 96 verification test assertions passed with zero defects, as cataloged in Table \ref{tab:verification_summary}.
+Verification was structured across modular unit testbenches and a self-checking integration-level comparative testbench using Icarus Verilog v13.0. The clean regression executes 347 checks: 85 modular checks and 262 integration checks. Integration checks cover expected data, hit/miss outcomes, write-through updates, busy behavior, timeouts, benchmark totals, single acceptance/completion, and stable ownership/payload under deliberately changed live inputs. The standalone six-state \texttt{cache\_fsm.v} is verified independently.
 
 \begin{table}[htbp]
 \centering
 \caption{Comprehensive Verification Suite Results}
 \label{tab:verification_summary}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{llcc}
 \toprule
 \textbf{Testbench} & \textbf{Target Module} & \textbf{Tests} & \textbf{Status} \\
@@ -179,11 +229,12 @@ Verification was structured across modular unit testbenches and an integration-l
 \texttt{tb\_cache\_2way.v} & 2-Way Cache Core & 26 & \textbf{26/26 PASS} \\
 \texttt{tb\_2way.v} & 2-Way Datapath Suite & 18 & \textbf{18/18 PASS} \\
 \texttt{tb\_lru\_fsm.v} & LRU \& 6-State FSM & 24 & \textbf{24/24 PASS} \\
-\texttt{tb\_top.v} & Integration Benchmark & 11 & \textbf{11/11 PASS} \\
+\texttt{tb\_top.v} & Self-Checking Integration & 262 & \textbf{262/262 PASS} \\
 \midrule
-\textbf{Total} & \textbf{Full Hardware Suite} & \textbf{96} & \textbf{96/96 PASS} \\
+\textbf{Total} & \textbf{Full Regression} & \textbf{347} & \textbf{347/347 PASS} \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \section{Results and Performance Analysis}
@@ -204,6 +255,7 @@ Table \ref{tab:benchmark_results} and Table \ref{tab:overall_summary} present th
 \centering
 \caption{Workload Hit-Rate Comparison (46 Requests)}
 \label{tab:benchmark_results}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Workload} & \textbf{Requests} & \textbf{DM Hits} & \textbf{2W Hits} & \textbf{Hit Rate (DM / 2W)} \\
@@ -216,17 +268,19 @@ Mixed & 10 & 5 & 6 & 50.0\% / 60.0\% \\
 \textbf{Total} & \textbf{46} & \textbf{19} & \textbf{30} & \textbf{41.3\% / 65.2\%} \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \begin{table}[htbp]
 \centering
 \caption{Comparative Architectural Summary}
 \label{tab:overall_summary}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcc}
 \toprule
 \textbf{Performance Metric} & \textbf{Direct-Mapped} & \textbf{2-Way Set-Assoc.} \\
 \midrule
-Total Memory Transactions & 46 & 46 \\
+Benchmark Requests & 46 & 46 \\
 Total Cache Hits & 19 & \textbf{30} \\
 Total Cache Misses & 27 & \textbf{16} \\
 Overall Cache Hit Rate & 41.3\% & \textbf{65.2\%} (+23.9\%) \\
@@ -236,6 +290,7 @@ Write Latency (Write-Through) & 2 cycles & 2 cycles \\
 Read Miss Penalty & 2 cycles & 2 cycles \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \subsection{Discussion of Findings}
@@ -243,7 +298,15 @@ Read Miss Penalty & 2 cycles & 2 cycles \\
 
 \textbf{2. Identical Behavior on Non-Conflicting Traces:} Under sequential and temporal workloads, both caches perform identically (50\% and 75\% respectively). This confirms that associativity provides targeted protection against set conflicts without penalizing sequential access streams.
 
-\textbf{3. Hardware Trade-offs:} The 2-way cache requires dual 6-bit tag comparators, an additional valid/tag array, 4 LRU flip-flops, and an output multiplexer. For modern VLSI technologies, this minimal silicon area cost is overwhelmingly justified by the 24 percentage-point hit-rate improvement and the prevention of catastrophic worst-case thrashing.
+\textbf{3. Hardware Trade-offs:} The 2-way cache requires dual 6-bit tag comparators, two way arrays, four LRU state bits, and a data multiplexer. This is a qualitative complexity increase only; no synthesis area, timing, power, or FPGA-resource measurements were performed.
+
+\subsection{Separate Three-Address Stress Workload}
+The modular suites also execute \texttt{0x00}, \texttt{0x04}, and \texttt{0x08} cyclically. All three addresses map to Set 0 of the two-way cache, so the working set exceeds associativity. Both caches record 0 hits from 12 requests. This dataset is kept separate from the two-address integration benchmark because combining the traces would misrepresent both experiments.
+
+\section{Discussion and Limitations}
+The two-address trace demonstrates the intended benefit of associativity: after two compulsory misses, both blocks coexist in one two-way set. The three-address trace demonstrates its limit. Sequential and temporal results are tied because those working sets do not create an associativity advantage.
+
+The prototype has important boundaries. Each block is one byte, so a miss does not fetch adjacent data and the design cannot demonstrate realistic spatial-locality benefits. Workloads are deterministic synthetic traces, not application or SPEC traces. The backing memory has fixed behavioral latency. There is no prefetching, write-back, dirty state, multilevel hierarchy, synthesis, static timing analysis, area estimate, or power measurement. Percentages apply only to the exact sequences reported.
 
 \section{Individual Contributions}
 In accordance with evaluation requirements, individual responsibilities and specific project deliverables across all five team members are documented below:
@@ -256,7 +319,7 @@ In accordance with evaluation requirements, individual responsibilities and spec
 \end{itemize}
 
 \section{Conclusion and Future Scope}
-This project successfully designed, integrated, and verified synthesizable RTL implementations of a Direct-Mapped Cache and a 2-Way Set-Associative Cache with 1-bit LRU replacement under strictly controlled physical constraints. Empirical benchmarking across 46 transactions demonstrated that the 2-Way Set-Associative Cache achieves an \textbf{overall hit rate of 65.2\%} versus \textbf{41.3\%} for the direct-mapped baseline, completely eliminating conflict thrashing (83.3\% vs. 0.0\%). All 96 verification test assertions passed with zero defects.
+This project implemented and simulation-verified RTL models of a Direct-Mapped Cache and a 2-Way Set-Associative Cache with 1-bit true LRU replacement. The two-address integration benchmark produced an overall hit rate of \textbf{65.2\%} for the 2-Way cache versus \textbf{41.3\%} for the direct-mapped baseline. The separate three-address cyclic conflict workload produced 0\% for both caches, demonstrating the associativity limit. A clean regression completed all \textbf{347/347} checks without compiler warnings. The six-state FSM remains a separately verified reference rather than part of the integrated datapath. Synthesis timing, area, and power remain future work.
 
 Future extensions include:
 \begin{enumerate}

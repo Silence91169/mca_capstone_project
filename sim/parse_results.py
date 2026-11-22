@@ -24,7 +24,7 @@ def parse_log(log_path: str):
         print(f"[WARN] Log not found: {log_path}")
         return None
 
-    with open(log_path) as f:
+    with open(log_path, encoding="utf-8", errors="replace") as f:
         lines = f.readlines()
 
     tests = []           # list of (name, result)
@@ -37,13 +37,11 @@ def parse_log(log_path: str):
         r'Req=(\d+)\s+Hits=(\d+)\s+Misses=(\d+)\s+HitRate=(\d+)%\s+MissRate=(\d+)%'
     )
     overall_re = re.compile(
-        r'Total Requests\s*:\s*(\d+)|'
-        r'Cache Hits\s*:\s*(\d+)|'
-        r'Cache Misses\s*:\s*(\d+)'
+        r'Total Requests\s*:\s*(?P<total>\d+)|'
+        r'Cache Hits\s*:\s*(?P<hits>\d+)|'
+        r'Cache Misses\s*:\s*(?P<misses>\d+)'
     )
     overall = {"total": None, "hits": None, "misses": None}
-    ovr_keys = ["total", "hits", "misses"]
-    ovr_idx  = 0
 
     for line in lines:
         m = test_re.match(line)
@@ -62,10 +60,10 @@ def parse_log(log_path: str):
             }
 
         m = overall_re.search(line)
-        if m and ovr_idx < 3:
-            val = next(v for v in m.groups() if v is not None)
-            overall[ovr_keys[ovr_idx]] = int(val)
-            ovr_idx += 1
+        if m:
+            for key, val in m.groupdict().items():
+                if val is not None:
+                    overall[key] = int(val)
 
     return {"tests": tests, "traces": traces, "overall": overall}
 
@@ -118,6 +116,41 @@ with open(csv_perf, "w") as f:
                 f.write(f'{tr},{label},N/A,N/A,N/A,N/A,N/A\n')
 
 print(f"[OK] {csv_perf}")
+
+# Keep the integration two-address benchmark separate from the unit-suite
+# three-address conflict trace. They answer different architectural questions.
+top_log = os.path.join(RESULTS_DIR, "sim_top.log")
+csv_top = os.path.join(RESULTS_DIR, "performance_integration_2addr.csv")
+top_rows = []
+if os.path.exists(top_log):
+    table_re = re.compile(
+        r'\s+(Sequential|Temporal|Conflict-Heavy|Mixed)\s+\|\s+(\d+)\s+\|\s+(\d+)\s+\|\s+(\d+)\s+\|\s+(\d+)%'
+    )
+    with open(top_log, encoding="utf-8", errors="replace") as f:
+        for line in f:
+            m = table_re.match(line)
+            if m:
+                top_rows.append(m.groups())
+
+with open(csv_top, "w") as f:
+    f.write("Dataset,Trace,Cache Type,Total Requests,Hits,Misses,Hit Rate (%)\n")
+    for idx, row in enumerate(top_rows):
+        cache = "Direct-Mapped" if idx < 4 else "2-Way Set-Associative"
+        name, req, hits, misses, rate = row
+        f.write(f"Two-address integration,{name},{cache},{req},{hits},{misses},{rate}\n")
+print(f"[OK] {csv_top}")
+
+csv_unit = os.path.join(RESULTS_DIR, "performance_unit_3addr.csv")
+with open(csv_unit, "w") as f:
+    f.write("Dataset,Trace,Cache Type,Total Requests,Hits,Misses,Hit Rate (%),Miss Rate (%)\n")
+    for tr in trace_names:
+        for label, data in [("2-Way Set-Associative", data_2way),
+                            ("Direct-Mapped", data_direct)]:
+            if data and tr in data["traces"]:
+                t = data["traces"][tr]
+                f.write(f'Three-address unit suite,{tr},{label},{t["requests"]},'
+                        f'{t["hits"]},{t["misses"]},{t["hit_rate"]},{t["miss_rate"]}\n')
+print(f"[OK] {csv_unit}")
 
 # ── 3. performance_summary.md ─────────────────────────────────────────────────
 

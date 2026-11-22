@@ -10,7 +10,7 @@
 
 ### 1.1 Overview
 
-Two independent self-checking testbenches were written — one per DUT — both sharing an identical backing-memory model, identical clock period, identical memory initialization, and identical performance-trace access sequences to ensure **fair comparison**.
+Unit testbenches are provided for each DUT, and `tb_top.v` supplies a self-checking integration environment with deterministic memory initialization. It verifies returned data, hit/miss status, write-through updates, busy behavior, timeouts, and one accepted/completed memory transaction per miss or write.
 
 ```
 ┌──────────────────────┐       ┌──────────────────────┐
@@ -215,6 +215,16 @@ gtkwave waveforms/wave_direct.vcd &
 3. **Memory latency is fixed:** 2 cycles. Real systems have variable DRAM latency.
 4. **No prefetching or speculative access** is modeled.
 5. **Simulation-only:** No synthesis timing analysis was performed.
+6. **One-byte blocks:** Sequential addresses occupy separate lines; the design does not fetch adjacent bytes and therefore does not model spatial-locality benefits of realistic multi-byte cache blocks.
+7. **Synthetic traces:** Hit rates characterize only the exact sequences documented here and are not general application performance estimates.
+8. **Controller integration:** `cache_fsm.v` is a separately verified six-state reference controller. The submitted direct and two-way caches use their own three-state controllers.
+
+## Verified Dataset Separation
+
+- `performance_integration_2addr.csv`: two-address conflict workload used by `tb_top.v`; the two-way cache can retain both blocks.
+- `performance_unit_3addr.csv`: three-address cyclic conflict workload used by the modular suites; three blocks exceed two-way associativity.
+
+Both datasets also contain their own sequential, temporal/repeated, and mixed traces. They are deliberately not aggregated because their address sequences differ.
 
 ---
 
@@ -248,7 +258,7 @@ gtkwave waveforms/wave_direct.vcd &
 **A:** We used 3 addresses all mapping to the same set/line. The 2-way cache has 2 rooms (ways) per set, but we had 3 guests (addresses). One always gets kicked out. This is called **capacity miss** combined with **conflict miss**. If we had used only 2 conflicting addresses, the 2-way would have handled them perfectly (0 evictions) while direct-mapped would have thrashed. That is the core advantage of associativity.
 
 ### Q: What is LRU replacement?
-**A:** LRU = Least Recently Used. When a set is full and a new line must be loaded, the cache asks: "Which of my current lines was last used the longest time ago?" and replaces that one. In our 2-way cache, a single bit per set tracks this — 0 means Way 0 was used more recently (Way 1 is the victim), 1 means Way 1 was used more recently (Way 0 is the victim).
+**A:** LRU = Least Recently Used. When a set is full and a new line must be loaded, the cache replaces the line used least recently. The implemented bit directly encodes the next victim: 0 means Way 0 is the victim and 1 means Way 1 is the victim. Accessing one way marks the other as the next victim.
 
 ### Q: What is write-through with no-write-allocate?
 **A:** 
